@@ -1,6 +1,7 @@
 FROM runpod/worker-comfyui:5.8.4-base
 
 ARG HF_TOKEN=""
+ENV HF_TOKEN=${HF_TOKEN}
 
 RUN git clone https://github.com/kijai/ComfyUI-KJNodes /comfyui/custom_nodes/ComfyUI-KJNodes && \
     git clone https://github.com/rgthree/rgthree-comfy /comfyui/custom_nodes/rgthree-comfy && \
@@ -32,7 +33,8 @@ RUN for req in /comfyui/custom_nodes/*/requirements.txt; do \
       fi \
     done
 
-ADD extra_model_paths.yaml /comfyui/extra_model_paths.yaml
-
 COPY download_models.sh /download_models.sh
-RUN chmod +x /download_models.sh && /download_models.sh
+COPY start.sh /start.sh
+RUN chmod +x /download_models.sh /start.sh
+
+CMD ["/start.sh"]

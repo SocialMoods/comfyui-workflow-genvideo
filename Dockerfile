@@ -41,5 +41,132 @@ RUN BACKOFFS="10 20 30 60 90" && for i in 1 2 3 4 5; do HF_TOKEN=$HF_TOKEN comfy
 RUN BACKOFFS="10 20 30 60 90" && for i in 1 2 3 4 5; do HF_TOKEN=$HF_TOKEN comfy model download --url 'https://huggingface.co/JunkyByte/easy_ViTPose/resolve/main/onnx/wholebody/vitpose-l-wholebody.onnx' --relative-path models/diffusion_models --filename 'vitpose-l-wholebody.onnx' && break; if [ $i -eq 5 ]; then echo "model-download failed after 5 attempts" >&2; exit 1; fi; SLEEP=$(echo $BACKOFFS | cut -d ' ' -f $i) && echo "model-download attempt $i failed; retrying in $SLEEP seconds" >&2; sleep $SLEEP; done
 RUN BACKOFFS="10 20 30 60 90" && for i in 1 2 3 4 5; do HF_TOKEN=$HF_TOKEN comfy model download --url 'https://huggingface.co/Wan-AI/Wan2.2-Animate-14B/resolve/main/process_checkpoint/det/yolov10m.onnx' --relative-path models/diffusion_models --filename 'yolov10m.onnx' && break; if [ $i -eq 5 ]; then echo "model-download failed after 5 attempts" >&2; exit 1; fi; SLEEP=$(echo $BACKOFFS | cut -d ' ' -f $i) && echo "model-download attempt $i failed; retrying in $SLEEP seconds" >&2; sleep $SLEEP; done
 
+RUN mkdir -p /comfyui/custom_nodes/KiaraPanels && \
+    echo '"""' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo 'KiaraPanels - Control Panel nodes for Stage I (SD) and Stage II (Flux) workflows.' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo 'Drop this folder into ComfyUI/custom_nodes/ to use.' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '"""' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo 'class ControlPanelSD:' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    CATEGORY = "KiaraPanels"' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    FUNCTION = "execute"' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    RETURN_TYPES = ("INT", "INT", "INT", "FLOAT")' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    RETURN_NAMES = ("width", "height", "steps", "cfg")' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    SD_PRESETS = {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "1:1 Square 512x512": (512, 512),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "1:1 Square 768x768": (768, 768),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "1:1 Square 1024x1024": (1024, 1024),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "2:3 Portrait 512x768": (512, 768),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "2:3 Portrait 768x1152": (768, 1152),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "3:2 Landscape 768x512": (768, 512),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "3:2 Landscape 1152x768": (1152, 768),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "9:16 Tall 576x1024": (576, 1024),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "16:9 Wide 1024x576": (1024, 576),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "9:16 Tall 720x1280": (720, 1280),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "16:9 Wide 1280x720": (1280, 720),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "4:7 Tall 576x1008": (576, 1008),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "9:16 Tall 896x1536": (896, 1536),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    QUALITY_PRESETS = {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Draft 4 steps": 4,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Fast 8 steps": 8,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Normal 12 steps": 12,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "High Quality 20 steps": 20,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Ultra 30 steps": 30,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Maximum 50 steps": 50,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    @classmethod' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    def INPUT_TYPES(cls):' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        return {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            "required": {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                "resolution": (list(cls.SD_PRESETS.keys()), {"default": "9:16 Tall 896x1536"}),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                "quality": (list(cls.QUALITY_PRESETS.keys()), {"default": "Fast 8 steps"}),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                "cfg": ("FLOAT", {"default": 1.0, "min": 1.0, "max": 30.0, "step": 0.5}),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    def execute(self, resolution, quality, cfg):' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        w, h = self.SD_PRESETS[resolution]' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        steps = self.QUALITY_PRESETS[quality]' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        return (w, h, steps, cfg)' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo 'class ControlPanelFlux:' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    CATEGORY = "KiaraPanels"' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    FUNCTION = "execute"' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    RETURN_TYPES = ("INT", "INT", "INT")' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    RETURN_NAMES = ("width", "height", "steps")' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    FLUX_PRESETS = {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "1:1 Square 1024x1024": (1024, 1024),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "3:4 Portrait 896x1152": (896, 1152),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "4:3 Landscape 1152x896": (1152, 896),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "9:16 Tall 768x1344": (768, 1344),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "9:16 Tall 896x1536": (896, 1536),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "16:9 Wide 1344x768": (1344, 768),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "2:3 Portrait 832x1216": (832, 1216),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "3:2 Landscape 1216x832": (1216, 832),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    QUALITY_PRESETS = {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Fast 4 steps": 4,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Normal 8 steps": 8,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "High Quality 16 steps": 16,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        "Ultra 28 steps": 28,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    @classmethod' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    def INPUT_TYPES(cls):' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        return {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            "required": {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                "resolution": (list(cls.FLUX_PRESETS.keys()), {"default": "9:16 Tall 896x1536"}),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                "quality": (list(cls.QUALITY_PRESETS.keys()), {"default": "Fast 4 steps"}),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    def execute(self, resolution, quality):' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        w, h = self.FLUX_PRESETS[resolution]' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        steps = self.QUALITY_PRESETS[quality]' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        return (w, h, steps)' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo 'class KiaraReferenceLatent:' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    """' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    Injects VAE-encoded reference latent into conditioning for FLUX Klein.' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    Replicates kx7_cb243e9c ("Reference Latent").' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    Uses the native FLUX reference_latents mechanism.' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    """' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    CATEGORY = "KiaraPanels"' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    FUNCTION = "execute"' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    RETURN_TYPES = ("CONDITIONING",)' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    @classmethod' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    def INPUT_TYPES(cls):' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        return {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            "required": {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                "conditioning": ("CONDITIONING",),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            },' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            "optional": {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                "latent": ("LATENT",),' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        }' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    def execute(self, conditioning, latent=None):' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        if latent is None:' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            return (conditioning,)' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        import copy' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        c = []' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        for t in conditioning:' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            d = copy.deepcopy(t[1])' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            ref = latent["samples"]' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            if "reference_latents" in d:' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                d["reference_latents"] = d["reference_latents"] + [ref]' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            else:' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '                d["reference_latents"] = [ref]' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '            c.append([t[0], d])' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '        return (c,)' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo 'NODE_CLASS_MAPPINGS = {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    "ControlPanelSD": ControlPanelSD,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    "ControlPanelFlux": ControlPanelFlux,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    "KiaraReferenceLatent": KiaraReferenceLatent,' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '}' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo 'NODE_DISPLAY_NAME_MAPPINGS = {' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    "ControlPanelSD": "Control Panel - SD",' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    "ControlPanelFlux": "Control Panel - Flux",' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '    "KiaraReferenceLatent": "Reference Latent (FLUX)",' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
+    echo '}' >> /comfyui/custom_nodes/KiaraPanels/__init__.py
 # copy all input data (like images or videos) into comfyui (uncomment and adjust if needed)
 # COPY input/ /comfyui/input/

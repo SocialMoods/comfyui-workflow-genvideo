@@ -187,14 +187,14 @@ RUN mkdir -p /comfyui/custom_nodes/KiaraPanels && \
     echo '    "KiaraReferenceLatent": "Reference Latent (FLUX)",' >> /comfyui/custom_nodes/KiaraPanels/__init__.py && \
     echo '}' >> /comfyui/custom_nodes/KiaraPanels/__init__.py
 
-RUN echo "=== Installing dependencies for all custom nodes ===" && \
+RUN echo "Installing dependencies for all custom nodes" && \
     pip install onnxruntime-gpu opencv-python-headless && \
     for dir in /comfyui/custom_nodes/*/; do \
       if [ -f "$dir/requirements.txt" ]; then \
         echo "Installing requirements for $dir" && \
         pip install -r "$dir/requirements.txt"; \
       fi; \
-    done \
+    done
 
 # copy all input data (like images or videos) into comfyui (uncomment and adjust if needed)
 # COPY input/ /comfyui/input/

@@ -194,7 +194,7 @@ RUN echo "Installing dependencies for all custom nodes" && \
         echo "Installing requirements for $dir" && \
         pip install -r "$dir/requirements.txt"; \
       fi; \
-    done \
+    done
 
 COPY handler.py /handler.py
 # copy all input data (like images or videos) into comfyui (uncomment and adjust if needed)

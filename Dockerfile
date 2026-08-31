@@ -197,5 +197,7 @@ RUN echo "Installing dependencies for all custom nodes" && \
     done
 
 COPY handler.py /handler.py
+
+COPY extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 # copy all input data (like images or videos) into comfyui (uncomment and adjust if needed)
 # COPY input/ /comfyui/input/

@@ -188,13 +188,14 @@ RUN mkdir -p /comfyui/custom_nodes/KiaraPanels && \
     echo '}' >> /comfyui/custom_nodes/KiaraPanels/__init__.py
 
 RUN echo "Installing dependencies for all custom nodes" && \
-    pip install onnxruntime-gpu opencv-python-headless && \
+    pip install opencv-python-headless && \
     for dir in /comfyui/custom_nodes/*/; do \
       if [ -f "$dir/requirements.txt" ]; then \
         echo "Installing requirements for $dir" && \
         pip install -r "$dir/requirements.txt"; \
       fi; \
-    done
+    done && \
+    pip install --force-reinstall --no-deps onnxruntime-gpu
 
 COPY handler.py /handler.py
 
